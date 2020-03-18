@@ -55,12 +55,13 @@ func main() {
 		if reflect.DeepEqual(outArr, ansArr) {
 			color.Green("Accepted")
 		} else {
-			fmt.Println("input")
+			color.Red("Wrong Answer")
+			fmt.Println("== input ==")
 			fmt.Println(inputList[i])
-			fmt.Println("\noutput")
+			fmt.Println("\n== output ==")
 			fmt.Println(string(output))
-			fmt.Println("\nanswer")
-			fmt.Println(inputList[i])
+			fmt.Println("\n== answer ==")
+			fmt.Println(answerList[i])
 		}
 
 		fmt.Println()
