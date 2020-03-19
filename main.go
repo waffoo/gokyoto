@@ -1,70 +1,42 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"os"
-	"os/exec"
-	"reflect"
-	"strings"
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/fatih/color"
+	"github.com/urfave/cli"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("usage: ./gokyoto [url]")
-		os.Exit(0)
+	//if len(os.Args) < 2 {
+	//fmt.Println("usage: ./gokyoto [url]")
+	//os.Exit(0)
+	//}
+	app := cli.NewApp()
+	app.Name = "GoKyoTo"
+	app.Usage = "CLI tools for competitive programming written in golang"
+	app.Version = "0.0.0"
+
+	app.Action = func(c *cli.Context) error {
+		cli.ShowAppHelp(c)
+		return nil
 	}
-	url := os.Args[1]
-	doc, err := goquery.NewDocument(url)
-	if err != nil {
-		panic(err)
+
+	app.Commands = []*cli.Command{
+		{
+			Name:    "test",
+			Aliases: []string{"te"},
+			Usage:   "test command: test [url]",
+			Action: func(c *cli.Context) error {
+				if c.Args().Len() == 0 {
+					cli.ShowAppHelp(c)
+				} else {
+					TestCmd(c.Args().Slice())
+				}
+				return nil
+			},
+		},
 	}
 
-	inputList := []string{}
-	answerList := []string{}
-
-	doc.Find("section").Each(func(i int, s *goquery.Selection) {
-		head := s.Find("h3").First().Text()
-
-		if strings.Contains(head, "入力例") {
-			input := s.Find("pre").First().Text()
-			inputList = append(inputList, input)
-		}
-		if strings.Contains(head, "出力例") {
-			answer := s.Find("pre").First().Text()
-			answerList = append(answerList, answer)
-		}
-	})
-
-	for i := 0; i < len(inputList); i++ {
-		fmt.Println("* sample", i+1)
-
-		cmd := exec.Command("./a.out")
-		stdin, _ := cmd.StdinPipe()
-		io.WriteString(stdin, inputList[i])
-		stdin.Close()
-
-		output, _ := cmd.Output()
-		outArr := strings.Fields(string(output))
-
-		ansArr := strings.Fields(answerList[i])
-
-		if reflect.DeepEqual(outArr, ansArr) {
-			color.Green("Accepted")
-		} else {
-			color.Red("Wrong Answer")
-			fmt.Println("== input ==")
-			fmt.Println(inputList[i])
-			fmt.Println("\n== output ==")
-			fmt.Println(string(output))
-			fmt.Println("\n== answer ==")
-			fmt.Println(answerList[i])
-		}
-
-		fmt.Println()
-	}
+	app.Run(os.Args)
 
 }
